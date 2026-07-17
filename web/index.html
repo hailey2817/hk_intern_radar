@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102a43">
+  <title>HK Internship Radar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">HK</div>
+        <div>
+          <strong>Internship Radar</strong>
+          <span>2027 application cycle</span>
+        </div>
+      </div>
+
+      <nav class="primary-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-view="opportunities">
+          <i data-lucide="briefcase-business"></i><span>Opportunities</span><b id="navOpportunityCount">0</b>
+        </button>
+        <button class="nav-item" data-view="pipeline">
+          <i data-lucide="kanban-square"></i><span>Pipeline</span><b id="navPipelineCount">0</b>
+        </button>
+        <button class="nav-item" data-view="research">
+          <i data-lucide="bot"></i><span>Research updates</span><b id="sourceIssueCount">0</b>
+        </button>
+      </nav>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Industries</div>
+        <button class="category-item selected" data-category="All">
+          <span class="category-swatch all"></span><span>All industries</span><b data-count="All">0</b>
+        </button>
+        <button class="category-item" data-category="Consulting">
+          <span class="category-swatch consulting"></span><span>Consulting</span><b data-count="Consulting">0</b>
+        </button>
+        <button class="category-item" data-category="Investment Banking & Finance">
+          <span class="category-swatch finance"></span><span>IB & Finance</span><b data-count="Investment Banking & Finance">0</b>
+        </button>
+        <button class="category-item" data-category="Supply Chain & Operations">
+          <span class="category-swatch operations"></span><span>Supply Chain</span><b data-count="Supply Chain & Operations">0</b>
+        </button>
+        <button class="category-item" data-category="General Business Programs">
+          <span class="category-swatch business"></span><span>General Business</span><b data-count="General Business Programs">0</b>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="profile-dot">28</div>
+        <div><strong>Class of 2028</strong><span>Hong Kong work rights</span></div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="icon-button mobile-menu" id="mobileMenu" title="Open navigation"><i data-lucide="menu"></i></button>
+        <div class="topbar-copy">
+          <h1 id="viewTitle">Opportunity radar</h1>
+          <p id="viewSubtitle">Winter 2026–27 and Summer 2027, based in Hong Kong</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="sync-state" id="syncState">
+            <span class="sync-dot"></span>
+            <div><strong>Checking data</strong><span>Loading source status</span></div>
+          </div>
+          <button class="primary-button" id="refreshButton"><i data-lucide="sparkles"></i><span>Research now</span></button>
+        </div>
+      </header>
+
+      <section class="view active" id="opportunitiesView">
+        <div class="metrics-grid">
+          <article class="metric">
+            <div class="metric-heading"><span>Open now</span><i data-lucide="door-open"></i></div>
+            <strong id="openMetric">0</strong><small id="openMetricNote">currently accepting applications</small>
+          </article>
+          <article class="metric">
+            <div class="metric-heading"><span>Upcoming</span><i data-lucide="calendar-clock"></i></div>
+            <strong id="upcomingMetric">0</strong><small>confirmed or scheduled openings</small>
+          </article>
+          <article class="metric">
+            <div class="metric-heading"><span>Urgent</span><i data-lucide="alarm-clock"></i></div>
+            <strong id="urgentMetric">0</strong><small>rolling or within 30 days</small>
+          </article>
+          <article class="metric">
+            <div class="metric-heading"><span>In progress</span><i data-lucide="route"></i></div>
+            <strong id="progressMetric">0</strong><small>applications beyond interested</small>
+          </article>
+        </div>
+
+        <section class="deadline-strip" id="deadlineStrip">
+          <div class="deadline-icon"><i data-lucide="bell-ring"></i></div>
+          <div class="deadline-copy"><strong>Next application action</strong><span id="nextActionText">Calculating your nearest deadline...</span></div>
+          <button class="text-button" id="viewUrgentButton">View urgent roles<i data-lucide="arrow-right"></i></button>
+        </section>
+
+        <div class="toolbar">
+          <label class="search-box">
+            <i data-lucide="search"></i>
+            <input type="search" id="searchInput" placeholder="Search companies, programs, skills...">
+          </label>
+          <select id="seasonFilter" aria-label="Filter by season">
+            <option value="All">All seasons</option>
+            <option value="Summer">Summer 2027</option>
+            <option value="Winter">Winter / off-cycle</option>
+          </select>
+          <select id="applicationFilter" aria-label="Filter by application status">
+            <option value="All">All application states</option>
+            <option value="Open">Open</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Monitor">Monitor</option>
+          </select>
+          <select id="confidenceFilter" aria-label="Filter by date confidence">
+            <option value="All">All confidence levels</option>
+            <option value="Confirmed">Confirmed 2027</option>
+            <option value="Monitoring">Monitoring</option>
+          </select>
+          <button class="icon-button" id="clearFilters" title="Clear filters"><i data-lucide="filter-x"></i></button>
+        </div>
+
+        <div class="table-shell">
+          <div class="table-meta">
+            <span id="resultCount">0 opportunities</span>
+            <span class="legend"><i class="legend-dot confirmed"></i>Confirmed 2027 <i class="legend-dot monitor"></i>Monitoring</span>
+          </div>
+          <div class="table-scroll">
+            <table class="opportunities-table">
+              <thead>
+                <tr>
+                  <th>Company & program</th>
+                  <th>Industry</th>
+                  <th>Application</th>
+                  <th>Deadline</th>
+                  <th>Your pipeline</th>
+                  <th>Source</th>
+                  <th><span class="sr-only">Open details</span></th>
+                </tr>
+              </thead>
+              <tbody id="opportunitiesBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-state hidden" id="emptyState">
+            <i data-lucide="search-x"></i>
+            <strong>No matching opportunities</strong>
+            <span>Change the filters or add an official role.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="pipelineView">
+        <div class="pipeline-header">
+          <div><h2>Application pipeline</h2><p>Move each role forward as you prepare, apply, test and interview.</p></div>
+          <div class="pipeline-summary" id="pipelineSummary"></div>
+        </div>
+        <div class="kanban" id="kanbanBoard"></div>
+      </section>
+
+      <section class="view" id="researchView">
+        <div class="sources-header">
+          <div><h2>Research agent updates</h2><p>The agent searches official employer pages, compares each run, and separates available roles from the watchlist.</p></div>
+          <div class="source-stats" id="sourceStats"></div>
+        </div>
+        <div class="research-layout">
+          <section class="research-panel">
+            <div class="research-panel-header"><div><span>Latest run</span><strong id="agentRunTitle">Waiting for research</strong></div><span class="agent-status" id="agentStatus">Waiting</span></div>
+            <p id="agentRunMessage">The scheduled agent runs every Monday, and on-demand requests are picked up by the hourly worker.</p>
+            <div class="agent-schedule"><i data-lucide="calendar-clock"></i><div><strong>Automatic research</strong><span>Every Monday at 09:00 Hong Kong time</span></div></div>
+            <div class="agent-schedule"><i data-lucide="mouse-pointer-click"></i><div><strong>Flexible refresh</strong><span>Research now queues an extra run; the worker checks hourly</span></div></div>
+          </section>
+          <section class="research-panel">
+            <div class="research-panel-header"><div><span>Change log</span><strong>What changed since the prior run</strong></div></div>
+            <div class="change-list" id="changesList"></div>
+          </section>
+        </div>
+        <div class="watchlist-header"><div><h3>Agent watchlist</h3><p>Relevant programmes without a confirmed available or officially announced upcoming application.</p></div><span id="watchlistCount">0 programmes</span></div>
+        <div class="source-table-shell">
+          <table class="source-table"><thead><tr><th>Employer & programme</th><th>Industry</th><th>Why it is watched</th><th>Official source</th></tr></thead><tbody id="watchlistBody"></tbody></table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="drawer-backdrop hidden" id="drawerBackdrop"></div>
+  <aside class="detail-drawer" id="detailDrawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div><span id="drawerCategory" class="category-label"></span><h2 id="drawerTitle"></h2><p id="drawerCompany"></p></div>
+      <button class="icon-button" id="closeDrawer" title="Close details"><i data-lucide="x"></i></button>
+    </div>
+    <div class="drawer-content" id="drawerContent"></div>
+    <div class="drawer-footer">
+      <a class="primary-button" id="officialLink" href="#" target="_blank" rel="noopener"><i data-lucide="external-link"></i>Open official source</a>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
