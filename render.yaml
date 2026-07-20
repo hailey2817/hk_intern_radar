@@ -2,7 +2,7 @@ services:
   - type: web
     name: hk-internship-radar
     runtime: python
-    plan: starter
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python server.py
     healthCheckPath: /api/health
@@ -10,10 +10,6 @@ services:
       - key: HOST
         value: 0.0.0.0
       - key: RUNTIME_DATA_DIR
-        value: /var/data
+        value: /tmp/hk-internship-data
       - key: RESEARCH_SYNC_TOKEN
         generateValue: true
-    disk:
-      name: internship-research-data
-      mountPath: /var/data
-      sizeGB: 1

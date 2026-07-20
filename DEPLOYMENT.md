@@ -6,10 +6,10 @@ The application is configured for Render using `render.yaml`.
 
 1. Push this directory to a GitHub repository.
 2. In Render, create a new Blueprint and select the repository.
-3. Render reads `render.yaml`, creates the Python web service, provisions a persistent disk at `/var/data`, and generates `RESEARCH_SYNC_TOKEN`.
+3. Render reads `render.yaml`, creates the Python web service, and generates `RESEARCH_SYNC_TOKEN`.
 4. After deployment, open the Render service URL and verify `/api/health` returns `status: ok`.
 
-The `starter` plan is used because Render persistent disks are not available on the free web-service plan. Change the plan only if the replacement supports persistent storage.
+The default Blueprint uses Render's free web-service plan. Runtime research imports are stored in the service's ephemeral filesystem and can be lost when the service is recreated or restarted. Upgrade the service and attach a persistent disk when durable hosted history is required.
 
 ## Research synchronization
 
