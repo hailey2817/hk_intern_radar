@@ -7,3 +7,4 @@ data/user_state.json
 data/custom_opportunities.json
 data/source_health.json
 .env
+.vercel/
