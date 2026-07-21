@@ -220,7 +220,7 @@ function renderResearch() {
 }
 
 function renderSyncState() {
-  if (state.meta.deploymentMode === "vercel") {
+  if (["vercel", "github-pages"].includes(state.meta.deploymentMode)) {
     const dot = $(".sync-dot");
     dot.className = "sync-dot good";
     $("#syncState strong").textContent = "Public research feed";
@@ -228,7 +228,7 @@ function renderSyncState() {
     const button = $("#refreshButton");
     button.disabled = true;
     button.title = "Hosted research updates are published automatically";
-    button.innerHTML = '<i data-lucide="calendar-check"></i><span>Weekly updates</span>';
+    button.innerHTML = '<i data-lucide="refresh-cw"></i><span>Auto refresh: 6h</span>';
     return;
   }
   const queued = state.meta.refreshRequest?.requested;
@@ -322,7 +322,7 @@ async function saveDrawerState() {
     priority: $("#drawerPriority").value,
     userNotes: $("#drawerNotes").value,
   };
-  if (state.meta.deploymentMode === "vercel") {
+  if (["vercel", "github-pages"].includes(state.meta.deploymentMode)) {
     const saved = JSON.parse(localStorage.getItem("hkInternshipPipeline") || "{}");
     saved[state.selectedId] = payload;
     localStorage.setItem("hkInternshipPipeline", JSON.stringify(saved));
@@ -355,14 +355,43 @@ function switchView(view) {
 
 async function loadData({ quiet = false } = {}) {
   try {
-    const response = await fetch("/api/opportunities", { cache: "no-store" });
+    let response = await fetch("/api/opportunities", { cache: "no-store" });
+    if (!response.ok) {
+      response = await fetch(`data/research_results.json?t=${Date.now()}`, { cache: "no-store" });
+      if (response.ok) {
+        const research = await response.json();
+        const universeResponse = await fetch(`data/company_universe.json?t=${Date.now()}`, { cache: "no-store" });
+        const universe = universeResponse.ok ? await universeResponse.json() : [];
+        const opportunities = research.opportunities || [];
+        const watchlist = research.watchlist || [];
+        const covered = new Set([...opportunities, ...watchlist].map((item) => (item.company || "").toLowerCase()));
+        universe.forEach((company) => {
+          if (!covered.has((company.company || "").toLowerCase())) watchlist.push({ ...company, role: company.segment, notes: company.reason });
+        });
+        state.items = opportunities.map((item, index) => ({ pipelineStatus: "Interested", priority: "Medium", userNotes: "", id: item.id || `pages-${index}`, ...item }));
+        state.watchlist = watchlist;
+        state.changes = research.changes || [];
+        state.meta = {
+          generatedAt: research.generatedAt,
+          summary: research.summary || {},
+          researchStatus: { status: "complete", message: "Official sources are scanned automatically every six hours." },
+          refreshRequest: { requested: false },
+          deploymentMode: "github-pages",
+          refreshSupported: false,
+        };
+        const saved = JSON.parse(localStorage.getItem("hkInternshipPipeline") || "{}");
+        state.items.forEach((item) => Object.assign(item, saved[item.id] || {}));
+        renderAll();
+        return;
+      }
+    }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     state.items = data.items;
     state.watchlist = data.watchlist || [];
     state.changes = data.changes || [];
     state.meta = data.meta;
-    if (state.meta.deploymentMode === "vercel") {
+    if (["vercel", "github-pages"].includes(state.meta.deploymentMode)) {
       const saved = JSON.parse(localStorage.getItem("hkInternshipPipeline") || "{}");
       state.items.forEach((item) => Object.assign(item, saved[item.id] || {}));
     }
@@ -374,7 +403,7 @@ async function loadData({ quiet = false } = {}) {
 
 async function refreshSources() {
   if (state.meta.refreshSupported === false) {
-    showToast("Hosted research is published automatically through scheduled deployments");
+    showToast("Official sources are refreshed automatically every six hours");
     return;
   }
   const button = $("#refreshButton");
