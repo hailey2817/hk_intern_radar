@@ -2,7 +2,6 @@ __pycache__/
 *.py[cod]
 .DS_Store
 ~$*
-data/research_results.json
 data/user_state.json
 data/custom_opportunities.json
 data/source_health.json
